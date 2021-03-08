@@ -122,6 +122,9 @@ func handleRequest() {
 
 	}).Methods("GET")
 
+	// Route to test CORS headers
+	apiRouter.Handle("/cors", http.NotFoundHandler()).Methods("GET")
+
 	apiRouter.Use(handlers.CORS())
 	apiRouter.Use(defaultContentType)
 
