@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	// 3rd party router package
 	"github.com/google/jsonapi"
@@ -95,12 +96,19 @@ func enableCors(w *http.ResponseWriter) {
 
 func handleRequest() {
 
+	serverAddr, ok := os.LookupEnv("JOBS_SERVER_ADDR")
+	if !ok {
+		serverAddr = ":8081"
+	}
+
 	myRouter := mux.NewRouter().StrictSlash(true)
 
 	myRouter.HandleFunc("/", homePage)
 	myRouter.HandleFunc("/jobs", showAllJobs).Methods("GET")
 	myRouter.HandleFunc("/jobs", testPostJobs).Methods("POST")
-	log.Fatal(http.ListenAndServe(":8081", myRouter))
+
+	log.Print("Setup server on: ", serverAddr)
+	log.Fatal(http.ListenAndServe(serverAddr, myRouter))
 }
 
 func main() {
