@@ -107,6 +107,11 @@ func handleRequest() {
 	myRouter.HandleFunc("/jobs", showAllJobs).Methods("GET")
 	myRouter.HandleFunc("/jobs", testPostJobs).Methods("POST")
 
+	apiRouter := myRouter.PathPrefix("/api/v1").Subrouter()
+	apiRouter.HandleFunc("/test", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("/api/v1/test"))
+	}).Methods("GET")
+
 	log.Print("Setup server on: ", serverAddr)
 	log.Fatal(http.ListenAndServe(serverAddr, myRouter))
 }
