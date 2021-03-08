@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -8,6 +9,7 @@ import (
 
 	// 3rd party router package
 	"github.com/google/jsonapi"
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 )
 
@@ -109,13 +111,33 @@ func handleRequest() {
 
 	apiRouter := myRouter.PathPrefix("/api/v1").Subrouter()
 	apiRouter.HandleFunc("/test", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("/api/v1/test"))
+
+		// Override the default header middleware
+		w.Header().Set("Content-Type", "application/json")
+
+		err := json.NewEncoder(w).Encode(true)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+
 	}).Methods("GET")
 
+	apiRouter.Use(handlers.CORS())
+	apiRouter.Use(defaultContentType)
+
+	loggedRouter := handlers.LoggingHandler(os.Stdout, myRouter)
+
 	log.Print("Setup server on: ", serverAddr)
-	log.Fatal(http.ListenAndServe(serverAddr, myRouter))
+	log.Fatal(http.ListenAndServe(serverAddr, loggedRouter))
 }
 
 func main() {
 	handleRequest()
+}
+
+func defaultContentType(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Add("Content-Type", jsonapi.MediaType)
+		next.ServeHTTP(w, r)
+	})
 }
