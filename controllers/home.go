@@ -1,21 +1,11 @@
 package controllers
 
 import (
-	"html/template"
 	"net/http"
 )
 
-var TPL *template.Template
-
-func init() {
-	TPL = template.Must(template.ParseGlob("views/*/*.html"))
-}
-
 func Homepage(w http.ResponseWriter, r *http.Request) {
-	err := TPL.ExecuteTemplate(w, "index.html", nil)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
+	w.Write([]byte("Homepage Endpoint Hit🎉"))
 }
 
 func NotImplemented(w http.ResponseWriter, r *http.Request) {
