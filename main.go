@@ -2,16 +2,13 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"net/http"
-	"os"
 
 	"main/app"
 	"main/routes"
 
 	// 3rd party router package
 	"github.com/google/jsonapi"
-	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 )
 
@@ -98,24 +95,6 @@ func enableCors(w *http.ResponseWriter) {
 	(*w).Header().Set("Access-Control-Allow-Origin", "*")
 }
 
-func handleRequest() {
-
-	serverAddr, ok := os.LookupEnv("JOBS_SERVER_ADDR")
-	if !ok {
-		serverAddr = ":8081"
-	}
-
-	myRouter := mux.NewRouter().StrictSlash(true)
-
-	myRouter.HandleFunc("/jobs", showAllJobs).Methods("GET")
-	myRouter.HandleFunc("/jobs", testPostJobs).Methods("POST")
-
-	loggedRouter := handlers.LoggingHandler(os.Stdout, myRouter)
-
-	log.Print("Setup server on: ", serverAddr)
-	log.Fatal(http.ListenAndServe(serverAddr, loggedRouter))
-}
-
 func main() {
 	a := app.App{}
 	a.LoadSettings()
@@ -126,6 +105,9 @@ func main() {
 	r = routes.Home(r)
 	r = routes.API(r)
 
+	r.HandleFunc("/jobs", showAllJobs).Methods("GET")
+	r.HandleFunc("/jobs", testPostJobs).Methods("POST")
+
 	// Ugly
 	routes.SetAppSettings(&a)
 	r = routes.Auth(r)
@@ -135,5 +117,4 @@ func main() {
 
 	a.Run()
 	defer a.Close()
-	// handleRequest()
 }
