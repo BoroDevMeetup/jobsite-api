@@ -13,9 +13,8 @@ import (
 )
 
 type App struct {
-	Settings  *viper.Viper
-	Mux       *mux.Router
-	Templates *template.Template
+	Settings *viper.Viper
+	Mux      *mux.Router
 }
 
 func (a *App) Run() {
