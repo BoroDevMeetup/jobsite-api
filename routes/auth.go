@@ -3,11 +3,9 @@ package routes
 import (
 	"fmt"
 	"log"
-	"main/app"
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/spf13/viper"
 	"github.com/thanhpk/randstr"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/endpoints"
@@ -15,8 +13,14 @@ import (
 
 var (
 	oauthState = randstr.Hex(16)
-	settings   *viper.Viper
+	authConfig AuthSettings
 )
+
+type AuthSettings struct {
+	Origin            string
+	SlackClientID     string
+	SlackClientSecret string
+}
 
 func Auth(r *mux.Router) *mux.Router {
 	log.Println("Loading auth routes")
@@ -62,14 +66,14 @@ func Auth(r *mux.Router) *mux.Router {
 	return r
 }
 
-func SetAppSettings(a *app.App) {
-	settings = a.Settings
+func SetAuthConfig(c AuthSettings) {
+	authConfig = c
 }
 
 func getConfig() *oauth2.Config {
-	origin := settings.Get("origin").(string)
-	slackClientID := settings.Get("slack_client_id").(string)
-	slackClientSecret := settings.Get("slack_client_secret").(string)
+	origin := authConfig.Origin
+	slackClientID := authConfig.SlackClientID
+	slackClientSecret := authConfig.SlackClientSecret
 
 	return &oauth2.Config{
 		RedirectURL:  origin + "/auth/callback",

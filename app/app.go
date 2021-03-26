@@ -1,11 +1,10 @@
 package app
 
 import (
-	"fmt"
 	"log"
+	"main/routes"
 	"net/http"
 	"os"
-	"text/template"
 
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
@@ -20,23 +19,11 @@ type App struct {
 func (a *App) Run() {
 	log.Println("Running app")
 
-	addr := viper.Get("addr").(string)
+	addr := a.Settings.Get("addr").(string)
 
-	// r := mux.NewRouter().StrictSlash(true)
-
-	// r = routes.Home(r)
-	// r = routes.API(r)
-	// routes.SetAppSettings(&a)
-	// r = routes.Auth(r)
-	// a.SetRoutes(r)
-	// r = routes.API(r)
-
-	// routes.SetAppSettings(a)
-	// r = routes.Auth(r)
-
-	// a.Mux = r
-
+	a.LoadRoutes()
 	lr := handlers.LoggingHandler(os.Stdout, a.Mux)
+
 	log.Print("Setup server on: ", addr)
 	log.Fatal(http.ListenAndServe(addr, lr))
 }
@@ -45,18 +32,20 @@ func (a *App) Close() {
 	log.Println("Closing down app")
 }
 
-func (a *App) SetRoutes(r *mux.Router) {
-	a.Mux = r
-}
+func (a *App) LoadRoutes() {
+	origin := a.Settings.Get("origin").(string)
+	slackClientID := a.Settings.Get("slack_client_id").(string)
+	slackClientSecret := a.Settings.Get("slack_client_secret").(string)
 
-func (a *App) LoadSettings() {
+	a.Mux = routes.Home(a.Mux)
+	a.Mux = routes.API(a.Mux)
 
-	viper.SetConfigName("config")
-	viper.SetConfigType("yaml")
-	viper.AddConfigPath(".")
-	err := viper.ReadInConfig()
-	if err != nil {
-		panic(fmt.Errorf("Fatal error config file: %s \n", err))
+	s := routes.AuthSettings{
+		Origin:            origin,
+		SlackClientID:     slackClientID,
+		SlackClientSecret: slackClientSecret,
 	}
-	a.Settings = viper.GetViper()
+
+	routes.SetAuthConfig(s)
+	a.Mux = routes.Auth(a.Mux)
 }
