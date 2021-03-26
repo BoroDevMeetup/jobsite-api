@@ -1,0 +1,8 @@
+addr: :8081
+origin: https://example.com
+slack_client_id: ""
+slack_client_secret: ""
+
+database:
+  default:
+    DSN: "postgres:postgres@tcp(localhost:5432)/jobs_test"
