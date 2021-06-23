@@ -1,10 +1,10 @@
 # README
 ### To run locally
-`go run main.go`
+npm i
 
-or
+Mac: `DEBUG=jobsite-api:* npm start`
 
-`ORIGIN=<origin> SLACK_CLIENT_ID=<client_id> SLACK_CLIENT_SECRET=<client_secret> go run main.go`
+Windows: `set DEBUG=jobsite-api:* & npm start`
 
 ### To See endpoint with mock data
 - in browser type "localhost:8081/jobs" after running it locally
@@ -40,5 +40,6 @@ it should look something like this:
 To test this with Slack your user needs the `identity.basic` oAuth scope and the bot needs `chat:write`.
 
 ### Docker
+#### This section might be different
 Run an instance of Postgres 
 `docker container run --name postgres -p 5432:5432 -e POSTGRES_PASSWORD=postgres -d postgres`
